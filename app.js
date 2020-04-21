@@ -56,13 +56,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', routes);
-app.use('/users', users);
+
+app.use('/users', ensureAuthenticated,users);
+
 app.use('/photos', photos);
 
 app.get('/auth/github',
   passport.authenticate('github', { scope: ['user:email'] }),
-  function (req, res) {
-  });
+  );
 
 app.get('/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
@@ -109,6 +110,10 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+function ensureAuthenticated(req,res,next){
+  (req.user === undefined ) ? res.redirect('/') : next(); 
+}
 
 
 module.exports = app;
